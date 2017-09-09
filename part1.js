@@ -5,15 +5,11 @@
 // Ignore non-uppercase letters
 
 const _ = require('lodash');
-
-function is_uppercase(ch) {
-    let cc = ch.charCodeAt(0);
-    return 65 <= cc && cc <= 90;
-}
+const util = require('./util');
 
 function caesar_encrypt(message, key) {
     let ords = _.map(message, ch => {
-        if(!is_uppercase(ch)) {
+        if(!util.is_upper(ch)) {
             return ch.charCodeAt(0);
         }
         return (ch.charCodeAt(0) - 65 + key + 26) % 26 + 65;
@@ -26,11 +22,12 @@ function caesar_decrypt(cipher, key) {
 }
 
 function vigenere_encrypt(message, key) {
-    let ords = _.map(message, (ch, index) => {
-        if(!is_uppercase(ch)) {
+    var key_index = 0;
+    let ords = _.map(message, (ch) => { // iteration order for iterables is guaranteed in lodash
+        if(!util.is_upper(ch)) {
             return ch.charCodeAt(0);
         }
-        return (ch.charCodeAt(0) - 65 + key[index % key.length] + 26) % 26 + 65;
+        return (ch.charCodeAt(0) - 65 + key[key_index++ % key.length] + 26) % 26 + 65; // TODO: need to verify this
     });
     return String.fromCharCode(...ords)
 }
@@ -78,6 +75,11 @@ function poly_encrypt(cipher, key) {
     return String.fromCharCode(...result_array);
 }
 
-// console.log(caesar_decrypt(caesar_encrypt("HELLO WORLD!", 3), 3));
-console.log(vigenere_encrypt("HELLO WORLD!", [1, 4, 2]));
-console.log(vigenere_decrypt(vigenere_encrypt("HELLO WORLD!", [1, 4, 2]), [1, 4, 2]));
+console.log(caesar_decrypt(caesar_encrypt("HELLO WORLD!", 3), 3));
+// console.log(vigenere_encrypt("HELLO WORLD!", [1, 4, 2]));
+// console.log(vigenere_decrypt(vigenere_encrypt("HELLO WORLD!", [1, 4, 2]), [1, 4, 2]));
+
+
+module.exports = {
+    caesar_encrypt, caesar_decrypt, vigenere_encrypt, vigenere_decrypt, xor_encrypt, xor_decrypt, poly_encrypt, poly_decrypt
+}
