@@ -57,8 +57,8 @@ function poly_decrypt(message, key) {
         encrypt_table[key.charCodeAt(i)] = i + 65;
     }
 
-    let result_array = _.map(cipher, ch => {
-        return encrypt_table[ch] ? encrypt_table[ch] : ch;
+    let result_array = _.map(message, (ch, i) => {
+        return encrypt_table[message.charCodeAt(i)] ? encrypt_table[message.charCodeAt(i)] : message.charCodeAt(i);
     });
     return String.fromCharCode(...result_array);
 }
@@ -70,14 +70,15 @@ function poly_encrypt(cipher, key) {
     }
 
     let result_array = _.map(cipher, ch => {
-        return encrypt_table[ch];
+        return encrypt_table[ch] ? encrypt_table[ch] : ch.charCodeAt(0);
     });
     return String.fromCharCode(...result_array);
 }
 
-console.log(caesar_decrypt(caesar_encrypt("HELLO WORLD!", 3), 3));
+// console.log(caesar_decrypt(caesar_encrypt("HELLO WORLD!", 3), 3));
 // console.log(vigenere_encrypt("HELLO WORLD!", [1, 4, 2]));
 // console.log(vigenere_decrypt(vigenere_encrypt("HELLO WORLD!", [1, 4, 2]), [1, 4, 2]));
+console.log(poly_decrypt(poly_encrypt("HELLO WORLD", "QWERTYUIOPASDFGHJKLZXCVBNM"), "QWERTYUIOPASDFGHJKLZXCVBNM"));
 
 
 module.exports = {

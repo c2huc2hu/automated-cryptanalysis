@@ -1,4 +1,4 @@
-// part 3
+// part 3. with research and testing, writing annealing took ~1 hr
 
 const part1 = require('./part1');
 const part2 = require('./part2');
@@ -23,8 +23,7 @@ var sentence = part1.caesar_encrypt('Nevertheless Milan was taken from France bo
 
 
 /* simulated annealing approach to cracking the vigenere cipher */
-function vigenere_crack_sa(cipher, model, key_length) {
-    let temp = 1;
+function vigenere_crack_sa(cipher, model, key_length, iters=50000) {
     let initial_key = _.times(key_length, _.random(26-1));
     let prob_fcn = state => part2.log_prob(part1.vigenere_decrypt(cipher, state), model); // evaluate the log_prob.
     let transition = state => {
@@ -33,13 +32,40 @@ function vigenere_crack_sa(cipher, model, key_length) {
         return result;
     }
 
-    let result_key = anneal(prob_fcn, transition, initial_key, 50000);
+    let result_key = anneal(prob_fcn, transition, initial_key, iters);
     return {key: result_key, message: part1.vigenere_decrypt(cipher, result_key)};
+}
+
+function substitution_crack_sa(cipher, model, iters=50000) {
+    // seed with a frequency attack
+    var freq_table = _.countBy(cipher);
+    var initial_key = _.sortBy(_.zip(
+        _.sortBy('ABCDEFGHIJKLMNOPQRSTUVWXYZ', letter => freq_table[letter] || 0).join('').split(''),
+        'ZQXJKVBPYGFWMUCLDRHSNIOATE'.toUpperCase().split('')
+    ), x => x[1])
+    .map(x => x[0]).join('');
+
+    let prob_fcn = state => part2.log_prob(part1.poly_decrypt(cipher, state), model);
+    let transition = state => {
+        let result = state.split('');
+        let index1 = _.random(state.length - 1);
+        let index2 = _.random(state.length - 1);
+
+        // swap
+        let temp = result[index1];
+        result[index1] = result[index2]
+        result[index2] = temp;
+
+        return result.join('');
+    }
+
+    let result_key = anneal(prob_fcn, transition, initial_key, iters);
+    return {key: result_key, message: part1.poly_decrypt(cipher, result_key)};
 }
 
 
 /**
- Optimization routine to find the maximum of prob_fcn
+ Optimization routine to find the maximum of prob_fcn.
  prob_fcn: function to minimize. should take state as its argument
  transition: how to generate another state from the previous state
  initial_state: initial state
@@ -60,12 +86,32 @@ function anneal(prob_fcn, transition, initial_state, iters=100000) {
         }
         temp = 1 - i / iters;
         if(i % Math.floor(iters / 20) == 0) {
-            // console.log(i, part1.vigenere_decrypt(sentence, curr_state));
+            console.log('current state', sentence, curr_state)
+            console.log(i, part1.poly_decrypt(sentence, curr_state));
             console.log("done step", i);
         }
     }
 
     return curr_state;
+}
+
+function softmax(arr) {
+    let max = _.max(arr);
+    let exps = _.map(arr, x => Math.exp(x - max));
+    let total = sum(exps);
+    return _.map(exps, x => x / total);
+}
+
+/* Use a GA to find the minimum of a function */
+function genetic_algorithm(initial_population, eval_fcn, breed_fcn, mutate_fcn, iters=20000) {
+    let population = initial_population;
+    let pop_size = population.length;
+
+    for(let i=0; i < iters; i++) {
+        // keep the top 20%, select things with probability given by softmax()
+
+    }
+
 }
 
 console.log("PART 3");
@@ -85,9 +131,22 @@ Again, the prince who holds a country differing in the above respects ought to m
 The Romans, in the countries which they annexed, observed closely these measures; they sent colonies and maintained friendly relations with(*) the minor powers, without increasing their strength; they kept down the greater, and did not allow any strong foreign powers to gain authority. Greece appears to me sufficient for an example. The Achaeans and Aetolians were kept friendly by them, the kingdom of Macedonia was humbled, Antiochus was driven out; yet the merits of the Achaeans and Aetolians never secured for them permission to increase their power, nor did the persuasions of Philip ever induce the Romans to be his friends without first humbling him, nor did the influence of Antiochus make them agree that he should retain any lordship over the country. Because the Romans did in these instances what all prudent princes ought to do, who have to regard not only present troubles, but also future ones, for which they must prepare with every energy, because, when foreseen, it is easy to remedy them; but if you wait until they approach, the medicine is no longer in time because the malady has become incurable; for it happens in this, as the physicians say it happens in hectic fever, that in the beginning of the malady it is easy to cure but difficult to detect, but in the course of time, not having been either detected or treated in the beginning, it becomes easy to detect but difficult to cure. Thus it happens in affairs of state, for when the evils that arise have been foreseen (which it is only given to a wise man to see), they can be quickly redressed, but when, through not having been foreseen, they have been permitted to grow in a way that every one can see them, there is no longer a remedy. Therefore, the Romans, foreseeing troubles, dealt with them at once, and, even to avoid a war, would not let them come to a head, for they knew that war is not to be avoided, but is only to be put off to the advantage of others; moreover they wished to fight with Philip and Antiochus in Greece so as not to have to do it in Italy; they could have avoided both, but this they did not wish; nor did that ever please them which is forever in the mouths of the wise ones of our time:—Let us enjoy the benefits of the time—but rather the benefits of their own valour and prudence, for time drives everything before it, and is able to bring with it good as well as evil, and evil as well as good.
 `.toUpperCase().replace(/[^A-Z]/g, '')
 
+// var model = part2.get_counts(corpus);
+// var sentence = part1.vigenere_encrypt('Nevertheless Milan was taken from France both the first and the second time'.toUpperCase(), [3, 14, 15, 9, 2, 6, 5]);
+// console.log("decrypting", sentence);
+// let t = Date.now();
+// console.log(vigenere_crack_sa(sentence, model, 7, iters=50000)); // 50000 iterations + a few hundred for refining is sufficient to crack a length 7 key. takes ~4 seconds
+// console.log('Took', (Date.now() - t) / 1000, 'seconds');
+
+var corpus = `
+'Nevertheless Milan was taken from France both the first and the second time'
+`.toUpperCase().replace(/[^A-Z]/g, '');
 var model = part2.get_counts(corpus);
-var sentence = part1.vigenere_encrypt('Nevertheless Milan was taken from France both the first and the second time'.toUpperCase(), [3, 14, 15, 9, 2, 6, 5]);
-console.log("decrypting", sentence);
+
+
+var sentence = part1.poly_encrypt('Nevertheless Milan was taken from France both the first and the second time'.toUpperCase(), 'qwertyuiopasdfghjklzxcvbnm'.toUpperCase());
+console.log("decrypting with substitution:", sentence);
 let t = Date.now();
-console.log(vigenere_crack_sa(sentence, model, 7)); // 50000 iterations + a few hundred for refining is sufficient to crack a length 7 key. takes ~4 seconds
-console.log('Took', (Date.now() - t) / 1000, 'seconds')
+for(let i=0; i<10; i++)
+    console.log(substitution_crack_sa(sentence, model, iters=50000));
+console.log('Took', (Date.now() - t) / 1000, 'seconds');
