@@ -6,9 +6,9 @@ const Deque = require('double-ended-queue');
 const util = require('./util');
 const _ = require('lodash');
 
-const N = 7; // N as in n-graph
+const N = 5; // N as in n-graph
 // const lambda = [0.4, 0.4, 0.2, 0.2, 0.1, 0.1, 0.1]  // probabilities for the linear interpolation model
-const lambda = [1e-6,1e-5,1e-4,1e-3,1e-2,1e-1,0.9]
+const lambda = [.2, .2, .2, .2, .2] // [0,0,0,1] //[1e-6,1e-5,1e-4,1e-3,1e-2,1e-1,0.9]
 
 /* Return the log probability of a sequence of characters */
 function log_prob(sentence, counts) {
@@ -24,7 +24,7 @@ function log_prob(sentence, counts) {
         if(util.is_upper(ch)) {
             queue.removeBack();
             queue.insertFront(ch);
-            result += get_prob(queue, counts);
+            result += get_prob2(queue, counts);
         }
     })
     return result;
@@ -72,6 +72,25 @@ function get_prob(q, counts) {
         curr_count = next_count;
     }
     return Math.log(result);
+}
+
+// Simpler version of log probability: lambda_n * P(ngram), where P(ngram) = count(ngram / n-1gram)
+function get_prob2(q, counts) {
+    let curr_count = counts;
+    let result = 0;
+
+    let total_prob = 0;
+    for(let n=0; n<N; n++) {
+        let next_count = curr_count[q.get(n)];
+
+        if (next_count && next_count.sum) {
+            total_prob += lambda[n] * next_count.sum / curr_count.sum;
+        }
+        else {
+            break;
+        }
+        return Math.log(total_prob)
+    }
 }
 
 // console.log((log_prob('AAAB AB  ABA AB AB AB AB ', counts)));
