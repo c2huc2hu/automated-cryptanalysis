@@ -8,7 +8,7 @@ const _ = require('lodash');
 
 const N = 5; // N as in n-graph
 // const lambda = [0.4, 0.4, 0.2, 0.2, 0.1, 0.1, 0.1]  // probabilities for the linear interpolation model
-const lambda = [.2, .2, .2, .2, .2] // [0,0,0,1] //[1e-6,1e-5,1e-4,1e-3,1e-2,1e-1,0.9]
+const lambda = [1e-6,1e-5,1e-4,1e-3,1e-2,1e-1,0.9] //  [0.1, .2, .3, .4, .5]// [.2, .2, .2, .2, .2] // [0,0,0,1] //[1e-6,1e-5,1e-4,1e-3,1e-2,1e-1,0.9]
 
 /* Return the log probability of a sequence of characters */
 function log_prob(sentence, counts) {
@@ -21,9 +21,9 @@ function log_prob(sentence, counts) {
     }
 
     _.forEach(sentence, ch => {
-        if(util.is_upper(ch)) {
-            queue.removeBack();
-            queue.insertFront(ch);
+        if(util.is_upper(ch) || ch == ' ') {
+            queue.removeFront();
+            queue.insertBack(ch);
             result += get_prob2(queue, counts);
         }
     })
@@ -77,20 +77,26 @@ function get_prob(q, counts) {
 // Simpler version of log probability: lambda_n * P(ngram), where P(ngram) = count(ngram / n-1gram)
 function get_prob2(q, counts) {
     let curr_count = counts;
-    let result = 0;
-
-    let total_prob = 0;
+    let total_prob = 1e-30; // if using a short corpus, don't want log prob to be -Inf
     for(let n=0; n<N; n++) {
         let next_count = curr_count[q.get(n)];
 
         if (next_count && next_count.sum) {
-            total_prob += lambda[n] * next_count.sum / curr_count.sum;
+            total_prob += lambda[n] * next_count.sum // curr_count.sum;
         }
         else {
             break;
         }
-        return Math.log(total_prob)
+        curr_count = next_count;
     }
+    // try {
+    //     console.log(counts[q.get(0)][q.get(1)][q.get(2)][q.get(3)]);
+    // }
+    // catch(e) {
+    //     //
+    // }
+    // console.log(q.toArray(), Math.log(total_prob), total_prob)
+    return Math.log(total_prob);
 }
 
 // console.log((log_prob('AAAB AB  ABA AB AB AB AB ', counts)));
@@ -101,8 +107,8 @@ function get_counts(corpus) {
 
     for(let i=0; i<corpus.length; i++) {
         let curr = result; // pointer to where we are in the result generator
+        curr.sum += 1;
         for(let j=0; j<N; j++) {
-            curr.sum += 1;
             if(i + j >= corpus.length)
                 break;
 
@@ -111,6 +117,7 @@ function get_counts(corpus) {
                 curr[corpus[i+j]] = {sum: 0};
             }
             curr = curr[corpus[i+j]]
+            curr.sum += 1;
         }
     }
     return result;

@@ -75,15 +75,15 @@ function poly_encrypt(cipher, key) {
     return String.fromCharCode(...result_array);
 }
 
-console.log(vigenere_encrypt("ALPHABETIZE THIS!", [1,3,5]));
-console.log(caesar_encrypt("ALPHABETIZE!", 2));
-console.log(caesar_encrypt("ALPHABETIZE!", 3));
+// console.log(vigenere_encrypt("ALPHABETIZE THIS!", [1,3,5]));
+// console.log(caesar_encrypt("ALPHABETIZE!", 2));
+// console.log(caesar_encrypt("ALPHABETIZE!", 3));
 
 // console.log(caesar_decrypt(caesar_encrypt("HELLO WORLD!", 3), 3));
 // console.log(vigenere_encrypt("HELLO WORLD!", [1, 4, 2]));
 // console.log(vigenere_decrypt(vigenere_encrypt("HELLO WORLD!", [1, 4, 2]), [1, 4, 2]));
-console.log(poly_encrypt("HELLO WORLD", "QWERTYUIOPASDFGHJKLZXCVBNM"));
-console.log(poly_decrypt(poly_encrypt("HELLO WORLD", "QWERTYUIOPASDFGHJKLZXCVBNM"), "QWERTYUIOPASDFGHJKLZXCVBNM"));
+// console.log(poly_encrypt("HELLO WORLD", "QWERTYUIOPASDFGHJKLZXCVBNM"));
+// console.log(poly_decrypt(poly_encrypt("HELLO WORLD", "QWERTYUIOPASDFGHJKLZXCVBNM"), "QWERTYUIOPASDFGHJKLZXCVBNM"));
 
 
 module.exports = {
