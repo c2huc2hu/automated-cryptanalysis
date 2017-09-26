@@ -6,7 +6,7 @@ const Deque = require('double-ended-queue');
 const util = require('./util');
 const _ = require('lodash');
 
-const N = 5; // N as in n-graph
+const N = 7; // N as in n-graph
 // const lambda = [0.4, 0.4, 0.2, 0.2, 0.1, 0.1, 0.1]  // probabilities for the linear interpolation model
 const lambda = [1e-6,1e-5,1e-4,1e-3,1e-2,1e-1,0.9] //  [0.1, .2, .3, .4, .5]// [.2, .2, .2, .2, .2] // [0,0,0,1] //[1e-6,1e-5,1e-4,1e-3,1e-2,1e-1,0.9]
 
