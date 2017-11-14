@@ -50,7 +50,7 @@ function xor_encrypt(cipher, key) {
 }
 
 // key is a permutation of the alphabet
-function poly_decrypt(message, key) {
+function substitution_decrypt(message, key) {
     // construct the object
     let encrypt_table = {};
     for(let i=0; i<26; i++) {
@@ -63,7 +63,7 @@ function poly_decrypt(message, key) {
     return String.fromCharCode(...result_array);
 }
 
-function poly_encrypt(cipher, key) {
+function substitution_encrypt(cipher, key) {
     let encrypt_table = {};
     for(let i=0; i<26; i++) {
         encrypt_table[String.fromCharCode(i + 65)] = key.charCodeAt(i);
@@ -75,17 +75,28 @@ function poly_encrypt(cipher, key) {
     return String.fromCharCode(...result_array);
 }
 
-// console.log(vigenere_encrypt("ALPHABETIZE THIS!", [1,3,5]));
-// console.log(caesar_encrypt("ALPHABETIZE!", 2));
-// console.log(caesar_encrypt("ALPHABETIZE!", 3));
-
-// console.log(caesar_decrypt(caesar_encrypt("HELLO WORLD!", 3), 3));
-// console.log(vigenere_encrypt("HELLO WORLD!", [1, 4, 2]));
-// console.log(vigenere_decrypt(vigenere_encrypt("HELLO WORLD!", [1, 4, 2]), [1, 4, 2]));
-// console.log(poly_encrypt("HELLO WORLD", "QWERTYUIOPASDFGHJKLZXCVBNM"));
-// console.log(poly_decrypt(poly_encrypt("HELLO WORLD", "QWERTYUIOPASDFGHJKLZXCVBNM"), "QWERTYUIOPASDFGHJKLZXCVBNM"));
-
-
 module.exports = {
-    caesar_encrypt, caesar_decrypt, vigenere_encrypt, vigenere_decrypt, xor_encrypt, xor_decrypt, poly_encrypt, poly_decrypt
+    caesar_encrypt, caesar_decrypt, vigenere_encrypt, vigenere_decrypt, xor_encrypt, xor_decrypt, substitution_encrypt, substitution_decrypt
+}
+
+// MAIN
+if (require.main === module) {
+    // part 1a
+    util.test_case('1a', line => {
+        let [is_encrypt, key, message] = line.split('|').map(_.trim);
+        return (is_encrypt == 'ENCRYPT' ? caesar_encrypt : caesar_decrypt)(message, parseInt(key));
+    })
+
+    // part 1b
+    util.test_case('1b', line => {
+        let [is_encrypt, key, message] = line.split('|').map(_.trim);
+        return (is_encrypt == 'ENCRYPT' ? vigenere_encrypt : vigenere_decrypt)(message, key.split(' ').map(_.unary(parseInt)));
+    })
+
+
+    // part 1c
+    util.test_case('1c', line => {
+        let [is_encrypt, key, message] = line.split('|').map(_.trim);
+        return (is_encrypt == 'ENCRYPT' ? substitution_encrypt : substitution_decrypt)(message, key);
+    });
 }

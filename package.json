@@ -10,6 +10,7 @@
   "author": "c2huc2hu",
   "license": "ISC",
   "dependencies": {
+    "bluebird": "^3.5.0",
     "double-ended-queue": "^2.1.0-0",
     "lodash": "^4.17.4"
   }

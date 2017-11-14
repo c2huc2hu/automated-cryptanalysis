@@ -2,3 +2,5 @@ node_modules
 practical_cryptography
 *.out
 *.pyc
+input
+output
