@@ -132,8 +132,13 @@ if (require.main === module) {
     });
 
     // util.test_case('3c', line => {
-    //     // pass
+
     // })
 
+    util.test_case('3d', line => {
+        let [CRACK, message] = line.split('|').map(_.trim);
+        let result = substitution_crack_sa(message, ptb_counts, lambda, seeds=30);
+        return result.key + ' | ' + result.message;
+    });
 
 }
