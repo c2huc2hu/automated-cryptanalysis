@@ -1,0 +1,18 @@
+#!/bin/bash
+
+# replace me with your own script
+# it doesn't need to be bash if it can be run from shell
+
+start=`date +%s` # get start time. you don't need to include this
+
+# run your programs
+node part1.js
+# node part2.js
+# node part3.js
+
+echo "DONE EVERYTHING!"  # you can print whatever you want to stdout/ stderr
+
+# get end time and print time taken. you don't need to include this, I will time it externally
+end=`date +%s`
+runtime=$((end-start))
+echo "took" $runtime "second(s)"
