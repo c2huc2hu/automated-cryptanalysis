@@ -80,7 +80,7 @@ function get_prob2(q, counts, lambda) {
         let next_count = curr_count[q.get(n)];
 
         if (next_count && next_count.sum) {
-            total_prob += lambda[n] * next_count.sum // curr_count.sum;
+            total_prob += lambda[n] * next_count.sum / curr_count.sum;
         }
         else {
             break;
