@@ -29,49 +29,6 @@ function log_prob(sentence, counts, lambda) {
     return result;
 }
 
-// var counts = {
-//     A: {
-//         A: {sum: 50},
-//         B: {sum: 25},
-//         sum: 75
-//     },
-//     B: {
-//         A: {sum: 10},
-//         B: {sum: 15},
-//         sum: 25
-//     },
-//     sum: 100
-// }
-
-// // q is a lambda.length vector
-// // return the probability of the sequence of characters in q
-// function get_prob(q, counts) {
-//     let curr_count = counts;
-//     let result = 0;
-//     let done_flag = false;
-
-//     let ngram_prob = 1;
-//     for(let n=0; n<lambda.length; n++) {
-//         let next_count = curr_count[q.get(n)];
-
-//         if (next_count && next_count.sum) {
-//             ngram_prob *= next_count.sum / curr_count.sum; // may be easier just to recalculate these from scratch...
-//         }
-//         else {
-//             ngram_prob *= (next_count || 0) / curr_count.sum; // next_count may be undefined if that ngram is never seen
-//             done_flag = true;
-//         }
-//         result += lambda[n] * ngram_prob;
-
-//         if(done_flag) {
-//             return Math.log(result);
-//         }
-
-//         curr_count = next_count;
-//     }
-//     return Math.log(result);
-// }
-
 // Simpler version of log probability: lambda_n * P(ngram), where P(ngram) = count(ngram / n-1gram)
 function get_prob2(q, counts, lambda) {
     let curr_count = counts;
@@ -90,7 +47,25 @@ function get_prob2(q, counts, lambda) {
     return Math.log(total_prob);
 }
 
-// console.log((log_prob('AAAB AB  ABA AB AB AB AB ', counts)));
+function get_count(counts, substr, N, base_model=false) {
+    let curr_count = counts;
+    for(let n=0; n<N; n++) {
+        let ch = substr.charAt(n);
+        if (base_model && (ch == ' ' || !util.is_upper(ch))) {
+            continue; // ignore letters not in the corpus
+        }
+
+        let next_count = curr_count[ch];
+
+        if (next_count && next_count.sum) {
+            curr_count = next_count;
+        }
+        else {
+            return 0;
+        }
+    }
+    return curr_count.sum;
+}
 
 // return ngram counts for the corpus
 function get_counts(corpus, base_model=false, N=7) {
@@ -122,6 +97,27 @@ function get_counts(corpus, base_model=false, N=7) {
         }
     }
     return result;
+}
+
+if (require.main === module) {
+    const fs = require('fs');
+    const lambda = [1e-6,1e-5,1e-4,1e-3,1e-2,1e-1,0.9];
+    let ptb = fs.readFileSync('./ptb.train.txt').toString();
+    ptb = ptb.replace(/<unk> /g, '').replace(/N /g, ''); // get rid of added tokens
+
+    let ptb_counts = get_counts(ptb, true);
+
+    // part 2a
+    util.test_case('2a', line => {
+        let [str, substr] = line.split('|').map(_.trim);
+        return get_count(str === 'PTB' ? ptb_counts : get_counts(str, true), substr, substr.length, true);
+    });
+
+    // part 2b
+    util.test_case('2b', line => {
+        let [text1, text2] = line.split('|').map(_.trim);
+        return log_prob(text1, ptb_counts, lambda) > log_prob(text2, ptb_counts, lambda) ? 1 : 2;
+    });
 }
 
 

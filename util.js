@@ -9,8 +9,6 @@ function is_upper(ch) {
 function test_case(case_name, process_in) {
     fs.readFileAsync(`input/${case_name}.in`, 'ascii')
     .then(data => {
-        console.log(data.split('\n')
-                   .filter(x => x.length !== 0) )// remove blank lines)
         return data.split('\n')
                    .filter(x => x.length !== 0) // remove blank lines
                    .map(process_in);
@@ -19,7 +17,7 @@ function test_case(case_name, process_in) {
         fs.writeFileAsync(`output/${case_name}.out`, lines.join('\n'))
     })
     .then(() => console.log(`done ${case_name}`))
-    .catch(console.error);
+    .catch(x => console.error(x));
 }
 
 module.exports = {

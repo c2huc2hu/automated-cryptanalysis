@@ -1,14 +1,16 @@
 #!/bin/bash
 
 # replace me with your own script
-# it doesn't need to be bash if it can be run from shell
+# it doesn't need to be bash if it can be run from shell,
+# but you must set the shebang (https://en.wikipedia.org/wiki/Shebang_(Unix))
+# with something that works on the ECF machines
 
 start=`date +%s` # get start time. you don't need to include this
 
 # run your programs
 node part1.js
-# node part2.js
-# node part3.js
+node part2.js
+node part3.js
 
 echo "DONE EVERYTHING!"  # you can print whatever you want to stdout/ stderr
 
