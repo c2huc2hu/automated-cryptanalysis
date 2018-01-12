@@ -19,7 +19,7 @@ function test_case(case_name, process_in) {
         fs.writeFileAsync(`output/${case_name}.out`, lines.join('\n'))
     })
     .then(() => console.log(`done ${case_name}`))
-    .catch(console.error);
+    .catch(err => console.error(err));
 }
 
 module.exports = {
