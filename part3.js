@@ -131,24 +131,22 @@ if (require.main === module) {
     ptb = ptb.replace(/<unk> /g, '').replace(/N /g, ''); // get rid of added tokens
     let ptb_counts = part2.get_counts(ptb);
 
-    // util.test_case('3a', line => {
-    //     let [CRACK, message] = line.split('|').map(_.trim);
-    //     let result = caesar_crack(message, ptb_counts, lambda);
-    //     return result.key + ' | ' + result.message;
-    // });
+    util.test_case('3a', line => {
+        let message = _.trim(line);
+        let result = caesar_crack(message, ptb_counts, lambda);
+        return result.key + ' | ' + result.message;
+    });
 
-    // util.test_case('3b', line => {
-    //     let [CRACK, message, message_len] = line.split('|').map(_.trim);
-    //     let result = vigenere_crack_sa(message, ptb_counts, parseInt(message_len), lambda, seeds=5, iters=1000);
-    //     return result.key.join(' ') + ' | ' + result.message;
-    // });
-
+    util.test_case('3b', line => {
+        let [message_len, message] = line.split('|').map(_.trim);
+        let result = vigenere_crack_sa(message, ptb_counts, parseInt(message_len), lambda, seeds=10, iters=1000);
+        return result.key.join(' ') + ' | ' + result.message;
+    });
     util.test_case('3d', line => {
         let ciphertext = _.trim(line);
         let result = substitution_crack_sa(ciphertext, ptb_counts, lambda, seeds=20, iters=10000);
         result.key = post_process_substitution(result.key, ciphertext);
         return result.key + ' | ' + result.message;
     })
-
 
 }
