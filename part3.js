@@ -61,6 +61,18 @@ function substitution_crack_sa(cipher, model, lambda, seeds=10, iters=10000) {
 }
 
 /**
+ * Post process the result of the substitution cipher: replace unknown values with *
+ */
+function post_process_substitution(key, ciphertext) {
+    let known_letters = {};
+    for(let ch of ciphertext) {
+        known_letters[ch] = true;
+    }
+    return _.map(key, ch => known_letters[ch] ? ch : '*')
+            .join('');
+}
+
+/**
  Optimization routine to find the maximum of prob_fcn.
  prob_fcn: function to maximize. should take state as its argument
  transition: how to generate another state from the previous state
@@ -130,15 +142,11 @@ if (require.main === module) {
         let result = vigenere_crack_sa(message, ptb_counts, parseInt(message_len), lambda, seeds=10, iters=1000);
         return result.key.join(' ') + ' | ' + result.message;
     });
-
-    // util.test_case('3c', line => {
-
-    // })
-
     util.test_case('3d', line => {
-        let message = _.trim(line);
-        let result = substitution_crack_sa(message, ptb_counts, lambda, seeds=30);
+        let ciphertext = _.trim(line);
+        let result = substitution_crack_sa(ciphertext, ptb_counts, lambda, seeds=20, iters=10000);
+        result.key = post_process_substitution(result.key, ciphertext);
         return result.key + ' | ' + result.message;
-    });
+    })
 
 }
