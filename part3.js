@@ -139,7 +139,7 @@ if (require.main === module) {
 
     util.test_case('3b', line => {
         let [message_len, message] = line.split('|').map(_.trim);
-        let result = vigenere_crack_sa(message, ptb_counts, parseInt(message_len), lambda, seeds=10, iters=1000);
+        let result = vigenere_crack_sa(message, ptb_counts, parseInt(message_len), lambda, seeds=20, iters=1000);
         return result.key.join(' ') + ' | ' + result.message;
     });
     util.test_case('3d', line => {
